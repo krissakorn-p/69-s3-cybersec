@@ -2,9 +2,9 @@ services:
   db:
       image:postgres:lastest
       container_name:69-s3-db
-      ports:
+      port:
         - 54321:5432
-      environment:
+      environments:
         - POSTGRES_PASSWORD=REDACTED
         - POSTGRES_USER=administrator
         - POSTGRES_DB=KrissakornP
