@@ -1,0 +1,7 @@
+services:
+  db:
+      image:postgres:lastest
+      container_name:69-s3-db
+      ports:
+        - 54321:5432
+      
