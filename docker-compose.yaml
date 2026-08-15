@@ -5,9 +5,9 @@ services:
       ports:
         - 54321:5432
       environment:
-        - POSTGRES_PASSWORD=P@ssW0rd
-        - POSTGRES_USER=administrator
-        - POSTGRES_DB=KrissakornP
+        - POSTGRES_PASSWORD=${DATABASE_PASSWORD}
+        - POSTGRES_USER=${DATABASE_USER}
+        - POSTGRES_DB=${DATABASE_DB}
 
   pgadmin:
       image: dpage/pgadmin4
