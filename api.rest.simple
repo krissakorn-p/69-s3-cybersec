@@ -1,6 +1,6 @@
 # REST
 
-### Login
+### Login Admin
 POST http://localhost:9093/admin/login
 Content-Type: application/json
 
@@ -8,6 +8,25 @@ Content-Type: application/json
     "email": "",
     "password": "",
     "rememberMe": true
+}
+
+### Sign up Users
+POST http://localhost:9093/api/auth/local/register
+Content-Type: application/json
+
+{
+    "username": "",
+    "email": "",
+    "password": ""
+}
+
+### Login Users
+POST http://localhost:9093/api/auth/local
+Content-Type: application/json
+
+{
+    "identifier": "",
+    "password": ""
 }
 
 ### Forgot Password
@@ -20,4 +39,4 @@ Content-Type: application/json
 
 ### Profile
 GET http://localhost:9093/admin/users/me
-Authorization: Bearer <token>
+Authorization: Bearer
