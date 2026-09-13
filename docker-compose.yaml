@@ -1,5 +1,7 @@
+# SECURITY NOTE: keep all secrets in .env (gitignored). Never hardcode passwords.
 services:
   db:
+    # Postgres is major-scoped; for production pin a concrete patch tag, e.g. 16.8-alpine.
     image: postgres:16-alpine
     container_name: 69-s3-db
     environment:
@@ -8,23 +10,25 @@ services:
       - POSTGRES_DB=${DATABASE_NAME}
     volumes:
       - ./data:/var/lib/postgresql/data
-      
+
   pgadmin:
-    image: dpage/pgadmin4
+    image: dpage/pgadmin4:9.17
     container_name: 69-s3-admin
+    # Bind to loopback only so the admin UI is not reachable from the network.
     ports:
-      - 8083:80
+      - 127.0.0.1:8083:80
     environment:
       - PGADMIN_DEFAULT_EMAIL=${ADMIN_USER}
       - PGADMIN_DEFAULT_PASSWORD=${ADMIN_PASSWORD}
     volumes:
       - ./pgadmin-data:/var/lib/pgadmin
-  
+
   app:
-    image: prawee/strapi
+    image: prawee/strapi:1.1.0
     container_name: 69-s3-app
+    # Bind to loopback only; put a reverse proxy w/ TLS (e.g. nginx/caddy) in front for remote access.
     ports:
-      - 9093:1337
+      - 127.0.0.1:9093:1337
     environment:
       - DATABASE_PASSWORD=${DATABASE_PASSWORD}
       - DATABASE_USERNAME=${DATABASE_USERNAME}
