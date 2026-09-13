@@ -1,89 +1,105 @@
-# REST
+# SECURITY: เทมเพลตสำหรับ commit - ค่าในไฟล์นี้ห้ามเป็น secret จริง
+# ใช้งานจริง: เปลี่ยนชื่อเป็น api.rest, ใส่ค่าใน .env แล้วใช้ {{$dotenv VAR}} อ่านจาก .env โดยตรง
+# Token ดึงอัตโนมัติจาก response ของ login; reset token/code ใช้ @prompt กรอกเอง
 
-## 1. Admin Section
-### 1.1 Login 
-POST http://localhost:9093/admin/login
+@baseUrl = http://localhost:9093
+@adminToken = {{adminLogin.response.body.data.token}}
+@userToken = {{userLogin.response.body.jwt}}
+
+# ============ Admin Section ============
+
+### 1.1 Admin Login
+# @name adminLogin
+POST {{baseUrl}}/admin/login
 Content-Type: application/json
 
 {
-    "email": "",
-    "password": "",
+    "email": "{{$dotenv STRAPI_ADMIN_EMAIL}}",
+    "password": "{{$dotenv STRAPI_ADMIN_PASSWORD}}",
     "rememberMe": true
 }
 
-### 1.2 Signup 
-POST http://localhost:9093/admin/users
+### 1.2 Signup Admin (Security: ห้าม role Super Admin เอง -> ใช้ least privilege + invitation)
+# @prompt adminSignupEmail อีเมล admin คนใหม่
+POST {{baseUrl}}/admin/users
 Content-Type: application/json
-Authorization: Bearer <access_token>
+Authorization: Bearer {{adminToken}}
 
 {
-    "email": "",
-    "firstname": "",
-    "lastname": "",
-    "roles": [1]
+    "email": "{{adminSignupEmail}}",
+    "firstname": "Admin",
+    "lastname": "New",
+    "roles": [<role_id_least_privilege>]
 }
 
-### 1.3 Forgot Password
-POST http://localhost:9093/admin/forgot-password
-Content-Type: application/json
-
-{
-    "email": ""
-}
-
-### 1.3.1 Reset Password
-POST http://localhost:9093/admin/reset-password
+### 1.3 Forgot Password (Admin)
+POST {{baseUrl}}/admin/forgot-password
 Content-Type: application/json
 
 {
-    "resetPasswordToken": "",
-    "password": ""
+    "email": "{{$dotenv STRAPI_ADMIN_EMAIL}}"
 }
 
-### 1.4 Profile
-GET http://localhost:9093/admin/users/me
-Authorization: Bearer <access_token>
-
-
-
-## 2. User Section
-### 2.1 Login
-POST http://localhost:9093/api/auth/local
+### 1.3.1 Reset Password (Admin)
+# @prompt adminResetToken วาง resetPasswordToken จากอีเมล
+# @prompt adminNewPassword รหัสใหม่
+POST {{baseUrl}}/admin/reset-password
 Content-Type: application/json
 
 {
-    "identifier": "",
-    "password": ""
+    "resetPasswordToken": "{{adminResetToken}}",
+    "password": "{{adminNewPassword}}"
 }
 
-### 2.2 Signup
-POST http://localhost:9093/api/auth/local/register
+### 1.4 Profile (Admin)
+GET {{baseUrl}}/admin/users/me
+Authorization: Bearer {{adminToken}}
+
+# ============ User Section ============
+
+### 2.1 User Login
+# @name userLogin
+POST {{baseUrl}}/api/auth/local
 Content-Type: application/json
 
 {
-    "username": "",
-    "email": "",
-    "password": ""
+    "identifier": "{{$dotenv STRAPI_USER_EMAIL}}",
+    "password": "{{$dotenv STRAPI_USER_PASSWORD}}"
 }
 
-### 2.3 Forgot Password
-POST http://localhost:9093/api/auth/forgot-password
+### 2.2 Signup (User)
+# @prompt newUserUsername ชื่อผู้ใช้ใหม่
+# @prompt newUserEmail อีเมลผู้ใช้ใหม่
+# @prompt newUserPassword รหัสผ่านใหม่
+POST {{baseUrl}}/api/auth/local/register
 Content-Type: application/json
 
 {
-    "email": ""
+    "username": "{{newUserUsername}}",
+    "email": "{{newUserEmail}}",
+    "password": "{{newUserPassword}}"
 }
 
-### 2.3.1 Reset Password 
-POST http://localhost:9093/api/auth/reset-password
+### 2.3 Forgot Password (User)
+POST {{baseUrl}}/api/auth/forgot-password
 Content-Type: application/json
 
 {
-    "code": "",
-    "password": "",
-    "passwordConfirmation": ""
+    "email": "{{$dotenv STRAPI_USER_EMAIL}}"
 }
 
-### 2.4 Profile
-GET http://localhost:9093/api/users/me
-Authorization: Bearer <access_token>
+### 2.3.1 Reset Password (User)
+# @prompt userResetCode วาง code จากอีเมล
+# @prompt userNewPassword รหัสใหม่
+POST {{baseUrl}}/api/auth/reset-password
+Content-Type: application/json
+
+{
+    "code": "{{userResetCode}}",
+    "password": "{{userNewPassword}}",
+    "passwordConfirmation": "{{userNewPassword}}"
+}
+
+### 2.4 Profile (User)
+GET {{baseUrl}}/api/users/me
+Authorization: Bearer {{userToken}}
